@@ -22,7 +22,8 @@
     <input type="text" id="mobile" placeholder="Mobile Number" required>
     <input type="password" id="pass" placeholder="Password" required>
     <input type="password" id="confirmPass" placeholder="Confirm Password" required>
-    <!-- Referral code input set to readonly -->
+    
+    <!-- यहाँ यूजर को अपना इनवाइट कोड दिखेगा -->
     <input type="text" id="referral" placeholder="Referral Code" readonly>
     
     <button onclick="register()">Register</button>
@@ -31,24 +32,36 @@
 </div>
 
 <script>
-    // URL से 'code' पैरामीटर को पढ़ें (आपके लिंक के अनुसार)
+    // 1. URL से कोड पकड़ें
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
 
-    // अगर URL में कोड है, तो उसे इनपुट बॉक्स में भरें और लॉक कर दें
-    if (code) {
-        document.getElementById('referral').value = code;
-    }
+    // 2. इनपुट बॉक्स में भरें (अगर कोड नहीं है, तो 'NONE' दिखाएं)
+    window.onload = function() {
+        const referralInput = document.getElementById('referral');
+        if (code) {
+            referralInput.value = code;
+        } else {
+            referralInput.value = "NONE"; 
+        }
+    };
 
     function register() {
         let mobile = document.getElementById('mobile').value;
         let pass = document.getElementById('pass').value;
         let confirmPass = document.getElementById('confirmPass').value;
+        let usedReferral = document.getElementById('referral').value; // यह वह कोड है जो उसने यूज किया
 
         if (mobile.length !== 10) { alert("Please enter a valid 10-digit mobile number"); return; }
         if (pass !== confirmPass) { alert("Passwords do not match"); return; }
 
-        alert("Registration Successful! Your Permanent ID: USER" + Math.floor(Math.random() * 10000));
+        // 3. नया ID जनरेट करें (यह रैंडम होगा, पुराने से मैच नहीं करेगा)
+        let newUserID = "USER" + Math.floor(Math.random() * 90000 + 10000);
+
+        // 4. रिजल्ट दिखाएं
+        alert("Registration Successful!\nYour New ID: " + newUserID + "\nReferral Used: " + usedReferral);
+        
+        // इसके बाद आप डेटा को सर्वर पर भेज सकते हैं (अभी के लिए पेज रीडायरेक्ट)
         window.location.href = "login.html";
     }
 </script>
