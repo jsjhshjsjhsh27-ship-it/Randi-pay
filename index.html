@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration - Randi Pay</title>
     <style>
+        /* तेरा ओरिजिनल डिजाइन जैसा का तैसा है */
         body { font-family: Arial, sans-serif; display: flex; justify-content: center; padding-top: 50px; background-color: #f4f4f4; }
         .form-container { width: 320px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
         .logo { width: 100px; margin-bottom: 20px; }
@@ -31,12 +32,12 @@
 </div>
 
 <script>
+    // URL से कोड उठाना
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
 
     window.onload = function() {
-        if (code) document.getElementById('referral').value = code;
-        else document.getElementById('referral').value = "NONE"; 
+        document.getElementById('referral').value = code || "NONE";
     };
 
     async function register() {
@@ -49,19 +50,23 @@
         if (pass !== confirmPass) { alert("Passwords do not match"); return; }
 
         // सर्वर को डेटा भेजें
-        const response = await fetch('/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mobile, pass, referral })
-        });
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mobile, pass, referral })
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (data.success) {
-            alert("Registration Successful!\nYour New Unique ID: " + data.userID);
-            window.location.href = "login.html";
-        } else {
-            alert("Error: Registration failed.");
+            if (data.success) {
+                alert("Registration Successful!\nYour New Unique ID: " + data.userID);
+                window.location.href = "login.html";
+            } else {
+                alert("Error: " + (data.message || "Registration failed."));
+            }
+        } catch (err) {
+            alert("Server connection error. Try again later.");
         }
     }
 </script>
