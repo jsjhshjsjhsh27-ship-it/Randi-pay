@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Randi Pay</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; padding-top: 50px; background-color: #f4f4f4; }
+        .form-container { width: 320px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
+        .logo { width: 100px; margin-bottom: 20px; }
+        input { width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
+        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <img src="14322.jpg" alt="Logo" class="logo">
+    <h2>Login</h2>
+    <input type="text" id="mobile" placeholder="Mobile Number">
+    <input type="password" id="pass" placeholder="Password">
+    
+    <button onclick="login()">Login</button>
+</div>
+
+<script>
+    function login() {
+        // यहाँ आप बैकएंड वेरिफिकेशन लगा सकते हैं
+        alert("Login Successful! Redirecting to Dashboard...");
+        window.location.href = "dashboard.html";
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>Recharge History</title>
+    <style>
+        body { background: #f9f9f9; font-family: sans-serif; margin: 0; padding-bottom: 20px; }
+        .header { background: #fff; padding: 15px; font-weight: bold; border-bottom: 1px solid #eee; }
+        .filter-bar { display: flex; justify-content: space-around; background: #fff; padding: 15px 0; font-size: 13px; color: #666; border-bottom: 1px solid #eee; }
+        .filter-bar span { cursor: pointer; padding: 5px; }
+        .filter-bar span.active { color: #000; border-bottom: 2px solid #000; }
+        .notice { background: #ece1ff; margin: 10px; padding: 10px; border-radius: 8px; font-size: 13px; text-align: center; }
+        .history-card { background: #fff; margin: 10px; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .status-pill { padding: 4px 8px; border-radius: 5px; font-size: 12px; }
+        .success { color: #00bfa5; background: #e0f2f1; }
+        .cancel { color: #ff5252; background: #ffebee; }
+        .timeout { color: #ff9100; background: #fff3e0; }
+    </style>
+</head>
+<body>
+
+    <div class="header">&lt; Recharge History</div>
+    
+    <div class="filter-bar" id="filterBar">
+        <span onclick="filterData('All')" class="active">All</span>
+        <span onclick="filterData('In Payment')">In Payment</span>
+        <span onclick="filterData('Success')">Success</span>
+        <span onclick="filterData('Timeout')">Timeout</span>
+        <span onclick="filterData('Cancel')">Cancel</span>
+    </div>
+
+    <div class="notice">🟡 Complete a task to earn Commission and Bonus</div>
+
+    <div id="historyList">
+        <!-- डेटा यहाँ दिखाई देगा -->
+    </div>
+
+    <script>
+        const transactions = [
+            { amount: "5000 RS", status: "Cancel", income: "150", quota: "+5150", order: "BFbw0adp" },
+            { amount: "3300 RS", status: "Success", income: "99", quota: "+3399", order: "BFbw0msc" },
+            { amount: "479 RS", status: "Timeout", income: "14.37", quota: "+493.37", order: "BFb0y0yi" }
+        ];
+
+        function filterData(status) {
+            // एक्टिव क्लास अपडेट करना
+            document.querySelectorAll('.filter-bar span').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const list = document.getElementById('historyList');
+            list.innerHTML = "";
+
+            const filtered = (status === 'All') ? transactions : transactions.filter(t => t.status === status);
+
+            filtered.forEach(t => {
+                list.innerHTML += `
+                    <div class="history-card">
+                        <div>
+                            <strong>${t.amount}</strong> <span class="status-pill ${t.status.toLowerCase()}">${t.status}</span><br>
+                            <small style="color: #666;">Income ${t.income} | Quota ${t.quota}</small>
+                        </div>
+                        <div style="font-size: 12px; text-align: right;">OrderNo: ${t.order} ></div>
+                    </div>
+                `;
+            });
+        }
+        
+        // पेज लोड होते ही All दिखाएँ
+        filterData('All');
+    </script>
+</body>
+</html>

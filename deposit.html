@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Center</title>
+    <style>
+        body { background: #0e1215; color: #fff; font-family: sans-serif; margin: 0; padding: 10px; padding-bottom: 70px; }
+        
+        /* INR Task Design */
+        .card { background: #1c2227; padding: 12px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
+        .buy-btn { background: #333; color: #fff; border: 1px solid #555; padding: 5px 15px; border-radius: 15px; cursor: pointer; }
+
+        /* Payment Form */
+        #payment-form { display: none; background: #1c2227; padding: 15px; border-radius: 10px; border: 1px solid #333; }
+        .bank-info { background: #333; padding: 10px; border-radius: 5px; margin-bottom: 10px; font-size: 14px; }
+        .inline-detail { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .copy-btn { cursor: pointer; background: #555; border: none; color: #fff; padding: 2px 8px; border-radius: 4px; }
+
+        /* Navigation Bar */
+        .navbar { position: fixed; bottom: 0; left: 0; width: 100%; background: #1c2227; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; }
+        .nav-item { color: #fff; text-decoration: none; text-align: center; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <h3>Task Center</h3>
+    <div id="task-list"></div>
+
+    <!-- Payment Details Form -->
+    <div id="payment-form">
+        <div class="bank-info">
+            <div class="inline-detail">Acc: <span id="acc">20401036509</span> <button class="copy-btn" onclick="copyText('acc')">Copy</button></div>
+            <div class="inline-detail">IFSC: <span id="ifsc">FINO0009001</span> <button class="copy-btn" onclick="copyText('ifsc')">Copy</button></div>
+            <div class="inline-detail">Name: <span id="name">NOOR BHANU BEGUM</span> <button class="copy-btn" onclick="copyText('name')">Copy</button></div>
+            <div class="inline-detail">Bank: <span id="bank">FINO PAYMENT BANK</span> <button class="copy-btn" onclick="copyText('bank')">Copy</button></div>
+        </div>
+        <input type="text" placeholder="Enter UTR Number" style="width:100%; padding:10px; box-sizing:border-box;">
+        <input type="file" style="margin: 10px 0; color: #fff;">
+        <button onclick="alert('Submitted')" style="width:100%; padding:10px; background:#00d4ff; border:none; cursor:pointer;">Submit</button>
+        <button onclick="document.getElementById('payment-form').style.display='none'; document.getElementById('task-list').style.display='block';" style="width:100%; padding:10px; margin-top:5px; background:#444; color:#fff; border:none;">Back</button>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="dashboard.html" class="nav-item">🏠<br>Home</a>
+        <a href="deposit.html" class="nav-item">💰<br>Deposit</a>
+        <a href="bank.html" class="nav-item">🏦<br>Bank</a>
+        <a href="Team.html" class="nav-item">👥<br>Team</a>
+        <a href="profile.html" class="nav-item">👤<br>Profile</a>
+    </div>
+
+    <script>
+        function copyText(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => alert("Copied!"));
+        }
+
+        const list = document.getElementById('task-list');
+        for(let i=200; i<=50000; i+=200) {
+            list.innerHTML += `<div class="card">
+                <div><strong>${i} INR</strong><br><small>4% | +${(i*1.04).toFixed(0)}</small></div>
+                <button class="buy-btn" onclick="document.getElementById('payment-form').style.display='block'; document.getElementById('task-list').style.display='none';">Buy</button>
+            </div>`;
+        }
+    </script>
+</body>
+</html>

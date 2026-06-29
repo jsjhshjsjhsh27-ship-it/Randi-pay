@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Randi Pay</title>
+    <style>
+        body { margin: 0; background-color: #0c1117; color: #ffffff; font-family: sans-serif; }
+        
+        /* Header */
+        .header { display: flex; align-items: center; padding: 15px; font-size: 20px; font-weight: bold; }
+        .header img { width: 35px; height: 35px; margin-right: 10px; border-radius: 50%; }
+        
+        /* Spin Banner */
+        .banner { margin: 10px 15px; cursor: pointer; border-radius: 12px; overflow: hidden; border: 1px solid #30363d; }
+        .banner img { width: 100%; display: block; }
+        
+        /* Stats Grid */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px; }
+        .card { background: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center; }
+        .label { color: #8b949e; font-size: 12px; }
+        .value { font-size: 16px; font-weight: bold; margin-top: 5px; }
+        
+        /* Top-up Button */
+        .top-up { background: #6eb9ff; margin: 15px; padding: 15px; border: 1px solid #000000; text-align: center; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        /* Tutorials */
+        .tutorials { padding: 0 15px; }
+        .video-container { display: flex; gap: 10px; }
+        .video-box { width: 100%; height: 100px; background: #161b22; border-radius: 8px; border: 1px solid #30363d; }
+        
+        /* Bottom Navbar */
+        .navbar { position: fixed; bottom: 0; width: 100%; background: #0c1117; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #30363d; font-size: 10px; color: #8b949e; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <img src="logo.jpg" alt="Logo">
+    <span>Randi Pay</span>
+</div>
+
+<div class="banner" onclick="window.location.href='spin_page.html'">
+    <img src="spin_banner.jpg" alt="Lucky Spin Wheel">
+</div>
+
+<div class="grid">
+    <div class="card"><div class="label">CURRENT BALANCE</div><div class="value">$1,250.00</div></div>
+    <div class="card"><div class="label">TEAM COMMISSION</div><div class="value">9135.63</div></div>
+    <div class="card"><div class="label">TEAM ACTIVITY</div><div class="value">75 Active</div></div>
+    <div class="card"><div class="label">TOTAL EARNINGS</div><div class="value">12,450.00</div></div>
+</div>
+
+<div class="top-up">TOP-UP</div>
+<div class="tutorials">
+    <p>Tutorials</p>
+    <div class="video-container">
+        <div class="video-box"></div>
+        <div class="video-box"></div>
+        <div class="video-box"></div>
+        <div class="video-box"></div>
+    </div>
+</div>
+
+<div class="navbar">
+    <a href="dashboard.html" class="nav-item">🏠<br>Home</a>
+    <a href="deposit.html" class="nav-item">💰<br>Deposit</a>
+    <a href="bank.html" class="nav-item">🏦<br>Bank</a>
+    <a href="Team.html" class="nav-item">👥<br>Team</a>
+    <a href="profile.html" class="nav-item">👤<br>Profile</a>
+</div>
+
+</body>
+</html>

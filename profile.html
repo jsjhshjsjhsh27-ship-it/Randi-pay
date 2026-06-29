@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <style>
+        body { background: #7aa6e7; font-family: sans-serif; margin: 0; padding-bottom: 70px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: #fff; }
+        .logo { width: 40px; height: 40px; border-radius: 50%; background: #ddd; }
+        
+        .balance-card { background: #fff; margin: 15px; padding: 20px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .quota-card { background: #fff; margin: 15px; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .menu-item { background: #fff; margin: 10px 15px; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: #000; }
+        
+        .top-up-btn { background: linear-gradient(90deg, #6a11cb, #2575fc); color: #fff; padding: 8px 15px; border-radius: 20px; text-decoration: none; font-size: 14px; }
+        .copy-btn { cursor: pointer; background: #eee; border: none; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 5px; }
+
+        /* Navigation Bar */
+        .navbar { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; }
+        .nav-item { text-align: center; font-size: 12px; color: #555; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+   <!-- हेडर वाले सेक्शन में लोगो के लिए ये बदलाव करें -->
+<div class="header">
+    <div class="logo">
+        <img src="logo.jpg" alt="Logo" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+    </div>
+    <div>
+        ID: <span id="user-id">1001</span>
+        <button class="copy-btn" onclick="copyId()">Copy</button>
+    </div>
+</div>
+
+    <div class="balance-card">
+        <small>Available Balance</small>
+        <h2>₹ 0.00</h2>
+    </div>
+
+    <div class="quota-card">
+        <div><strong>Quota</strong><br><small>Current: 0</small></div>
+        <div><small>Pending:</small><br><strong>₹ 0.00</strong></div>
+        <a href="deposit.html" class="top-up-btn">Top Up</a>
+    </div>
+
+    <a href="recharge_history.html" class="menu-item">Recharge History <span>></span></a>
+    <a href="token_history.html" class="menu-item">Token History <span>></span></a>
+    <a href="bank.html" class="menu-item">Link Bank Account <span>></span></a>
+    <a href="https://t.me/Randipayofficialchannel" class="menu-item">Contact us (Telegram) <span>></span></a>
+    <a href="Team.html" class="menu-item">My Team <span>></span></a>
+    <a href="#" onclick="alert('Signed Out')" class="menu-item" style="color: red;">Sign Out <span>></span></a>
+
+    <div class="navbar">
+        <a href="dashboard.html" class="nav-item">🏠<br>Home</a>
+        <a href="deposit.html" class="nav-item">💰<br>Deposit</a>
+        <a href="bank.html" class="nav-item">🏦<br>Bank</a>
+        <a href="Team.html" class="nav-item">👥<br>Team</a>
+        <a href="profile.html" class="nav-item" style="color: #00d4ff;">👤<br>Profile</a>
+    </div>
+
+    <script>
+        function copyId() {
+            const id = document.getElementById('user-id').innerText;
+            navigator.clipboard.writeText(id).then(() => alert("ID Copied!"));
+        }
+    </script>
+</body>
+</html>
