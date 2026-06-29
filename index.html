@@ -16,13 +16,13 @@
 <body>
 
 <div class="form-container">
-    <!-- लोगो 14322.jpg यहाँ प्रदर्शित होगा -->
     <img src="14322.jpg" alt="Randi Pay Logo" class="logo">
     
     <h2>Create Account</h2>
     <input type="text" id="mobile" placeholder="Mobile Number" required>
     <input type="password" id="pass" placeholder="Password" required>
     <input type="password" id="confirmPass" placeholder="Confirm Password" required>
+    <!-- Referral code input set to readonly -->
     <input type="text" id="referral" placeholder="Referral Code" readonly>
     
     <button onclick="register()">Register</button>
@@ -31,9 +31,14 @@
 </div>
 
 <script>
-    // Auto-fill Referral Code from URL
+    // URL से 'code' पैरामीटर को पढ़ें (आपके लिंक के अनुसार)
     const urlParams = new URLSearchParams(window.location.search);
-    document.getElementById('referral').value = urlParams.get('ref') || 'DEFAULT123';
+    const code = urlParams.get('code');
+
+    // अगर URL में कोड है, तो उसे इनपुट बॉक्स में भरें और लॉक कर दें
+    if (code) {
+        document.getElementById('referral').value = code;
+    }
 
     function register() {
         let mobile = document.getElementById('mobile').value;
