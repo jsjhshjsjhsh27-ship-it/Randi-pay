@@ -20,7 +20,7 @@ mongoose.connect(dbURI)
 const userSchema = new mongoose.Schema({
     mobile: { type: String, required: true, unique: true }, // मोबाइल भी यूनिक होना चाहिए
     pass: { type: String, required: true },
-    referredBy: String, // जिसने इनवाइट किया (पुरानी referral फील्ड)
+    referredBy: String, // जिसने इनवाइट किया
     myReferralCode: { type: String, unique: true, required: true }, // यूजर का खुद का परमानेंट रेफरल कोड
     userID: { type: String, unique: true, required: true } 
 });
@@ -31,32 +31,29 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/team', (req, res) => res.sendFile(path.join(__dirname, 'team.html')));
 app.get('/regist', (req, res) => res.sendFile(path.join(__dirname, 'register.html')));
 
-// रजिस्टर करने का फाइनल राउट (फुल फिक्स और अपग्रेड)
+// 1. रजिस्टर करने का राउट (Full Fixed)
 app.post('/api/register', async (req, res) => {
     try {
-        const { mobile, pass, referral } = req.body; // referral में वो कोड आएगा जिससे बंदा जॉइन हो रहा है
+        const { mobile, pass, referral } = req.body; 
         
-        // 1. चेक करें कि नंबर पहले से है क्या
         const existingUser = await User.findOne({ mobile: mobile });
         if (existingUser) {
             return res.status(400).json({ success: false, message: "यह नंबर पहले से रजिस्टर्ड है!" });
         }
 
-        // 2. एकदम बुलेटप्रूफ यूनिक userID और खुद का रेफरल कोड जनरेट करना
-        const uniqueID = "ID" + crypto.randomBytes(4).toString('hex').toUpperCase(); // जैसे: ID7A8B9C2E
-        const uniqueRefCode = "REF" + crypto.randomBytes(3).toString('hex').toUpperCase(); // जैसे: REF4F8D
+        const uniqueID = "ID" + crypto.randomBytes(4).toString('hex').toUpperCase(); 
+        const uniqueRefCode = "REF" + crypto.randomBytes(3).toString('hex').toUpperCase(); 
 
         const newUser = new User({ 
             mobile, 
             pass, 
-            referredBy: referral || null, // अगर किसी के कोड से आया है तो वो, नहीं तो null
-            myReferralCode: uniqueRefCode, // इस बंदे का अपना नया कोड
+            referredBy: referral || null, 
+            myReferralCode: uniqueRefCode, 
             userID: uniqueID 
         });
 
         await newUser.save();
         
-        // फ्रंटएंड को रेस्पॉन्स में दोनों चीजें भेज रहे हैं
         res.json({ 
             success: true, 
             userID: uniqueID,
@@ -73,7 +70,37 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// 🔥 एमजे का लाइव टीम डिटेल्स API राउट (नया एडिशन)
+// 2. लॉगिन करने का लाइव API राउट (यह मिसिंग था भाई, अब जोड़ दिया है)
+app.post('/api/login', async (req, res) => {
+    try {
+        const { mobile, pass } = req.body;
+
+        // डेटाबेस में मोबाइल नंबर ढूंढो
+        const user = await User.findOne({ mobile: mobile });
+        if (!user) {
+            return res.status(400).json({ success: false, message: "यह मोबाइल नंबर रजिस्टर्ड नहीं है!" });
+        }
+
+        // पासवर्ड चेक करो
+        if (user.pass !== pass) {
+            return res.status(400).json({ success: false, message: "गलत पासवर्ड! कृपया सही पासवर्ड डालें।" });
+        }
+
+        // सही होने पर यूजर की ID और उसका परमानेंट रेफरल कोड फ्रंटएंड को भेज दो
+        res.json({
+            success: true,
+            userID: user.userID,
+            myReferralCode: user.myReferralCode,
+            message: "लॉगिन एकदम टकाटक हो गया!"
+        });
+
+    } catch (err) {
+        console.log("लॉगिन एरर:", err);
+        res.status(500).json({ success: false, message: "सर्वर एरर, फिर से कोशिश करें" });
+    }
+});
+
+// 3. लाइव टीम डिटेल्स API राउट
 app.get('/api/team-details', async (req, res) => {
     try {
         const { refCode } = req.query;
@@ -82,16 +109,15 @@ app.get('/api/team-details', async (req, res) => {
             return res.status(400).json({ success: false, message: "Referral code missing" });
         }
 
-        // 1. डेटाबेस में ढूँढो कि किस-किस बंदे के 'referredBy' में इस यूजर का कोड है
+        // चेक करो कि किस-किस बंदे के 'referredBy' में इस यूजर का कोड है
         const members = await User.find({ referredBy: refCode });
 
         let totalCommission = 0;
         let teamRecharge = 0;
 
-        // 2. हर एक मेंबर का डेटा सेट करो (अभी रीचार्ज सिस्टम पेंडिंग है तो डिफ़ॉल्ट 0 रख रहे हैं)
         const teamMembers = members.map(member => {
-            const rechargeAmount = 0; // जब रीचार्ज गेटवे बनाओगे तो ये डेटाबेस से लाइव आएगा भाई
-            const commissionEarned = 0; // कमीशन की कैलकुलेशन भी यहाँ जोड़ सकते हो
+            const rechargeAmount = 0; // रिचार्ज गेटवे आने पर यह लाइव कनेक्ट होगा
+            const commissionEarned = 0; 
 
             totalCommission += commissionEarned;
             teamRecharge += rechargeAmount;
@@ -103,7 +129,6 @@ app.get('/api/team-details', async (req, res) => {
             };
         });
 
-        // 3. फ्रंटएंड को लाइव डेटा भेज दो
         res.json({
             success: true,
             totalCommission: totalCommission,
