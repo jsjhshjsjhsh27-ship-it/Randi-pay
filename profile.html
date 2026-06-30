@@ -23,13 +23,13 @@
 </head>
 <body>
 
-   <!-- हेडर वाले सेक्शन में लोगो के लिए ये बदलाव करें -->
 <div class="header">
     <div class="logo">
         <img src="14322.jpg" alt="Logo" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
     </div>
     <div>
-        ID: <span id="user-id">1001</span>
+        <!-- यहाँ अब 1001 नहीं, बल्कि असली आईडी दिखेगी -->
+        ID: <span id="user-id">Loading...</span>
         <button class="copy-btn" onclick="copyId()">Copy</button>
     </div>
 </div>
@@ -37,6 +37,12 @@
     <div class="balance-card">
         <small>Available Balance</small>
         <h2>₹ 0.00</h2>
+    </div>
+
+    <!-- रेफरल कोड दिखाने के लिए एक नया छोटा सा कार्ड जोड़ दिया भाई -->
+    <div class="quota-card" style="margin-top: 5px;">
+        <div><strong>My Referral Code</strong><br><small id="my-ref-code">Loading...</small></div>
+        <button class="copy-btn" onclick="copyRef()">Copy Code</button>
     </div>
 
     <div class="quota-card">
@@ -50,7 +56,7 @@
     <a href="bank.html" class="menu-item">Link Bank Account <span>></span></a>
     <a href="https://t.me/Randipayofficialchannel" class="menu-item">Contact us (Telegram) <span>></span></a>
     <a href="Team.html" class="menu-item">My Team <span>></span></a>
-    <a href="#" onclick="alert('Signed Out')" class="menu-item" style="color: red;">Sign Out <span>></span></a>
+    <a href="#" onclick="logout()" class="menu-item" style="color: red;">Sign Out <span>></span></a>
 
     <div class="navbar">
         <a href="dashboard.html" class="nav-item">🏠<br>Home</a>
@@ -61,9 +67,45 @@
     </div>
 
     <script>
+        // 1. पेज लोड होते ही लोकल स्टोरेज से आईडी और रेफरल कोड उठाओ
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedUserID = localStorage.getItem('userID');
+            const savedRefCode = localStorage.getItem('myReferralCode');
+
+            if (savedUserID) {
+                document.getElementById('user-id').innerText = savedUserID;
+            } else {
+                document.getElementById('user-id').innerText = "Not Logged In";
+            }
+
+            if (savedRefCode) {
+                document.getElementById('my-ref-code').innerText = savedRefCode;
+            } else {
+                document.getElementById('my-ref-code').innerText = "NONE";
+            }
+        });
+
+        // आईडी कॉपी करने का फंक्शन
         function copyId() {
             const id = document.getElementById('user-id').innerText;
-            navigator.clipboard.writeText(id).then(() => alert("ID Copied!"));
+            if(id !== "Loading..." && id !== "Not Logged In") {
+                navigator.clipboard.writeText(id).then(() => alert("ID Copied: " + id));
+            }
+        }
+
+        // रेफरल कोड कॉपी करने का फंक्शन
+        function copyRef() {
+            const ref = document.getElementById('my-ref-code').innerText;
+            if(ref !== "Loading..." && ref !== "NONE") {
+                navigator.clipboard.writeText(ref).then(() => alert("Referral Code Copied: " + ref));
+            }
+        }
+
+        // लॉगआउट करने पर डेटा साफ़ करो
+        function logout() {
+            localStorage.clear();
+            alert('Signed Out!');
+            window.location.href = 'register.html'; // या जो भी तुम्हारा लॉगिन पेज हो
         }
     </script>
 </body>
