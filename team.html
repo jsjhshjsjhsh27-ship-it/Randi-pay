@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>team Section</title>
     <style>
+        /* तेरा ओरिजिनल डिजाइन जैसा का तैसा है भाई */
         body { background: #f9f9f9; color: #000; font-family: sans-serif; margin: 0; padding-bottom: 80px; }
         .header { padding: 20px; }
         
@@ -16,7 +17,9 @@
         .copy-btn { cursor: pointer; background: #eee; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
 
         /* Team Details */
-        .team-member { background: #fff; padding: 15px; margin: 10px 15px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
+        .team-member { background: #fff; padding: 15px; margin: 10px 15px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .member-id { font-weight: bold; color: #333; }
+        .member-comm { color: #28a745; font-weight: bold; }
         
         /* Navbar */
         .navbar { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; }
@@ -29,18 +32,22 @@
 
     <div class="stats-card">
         <div class="stats-grid">
-            <div><strong>0.00</strong><br><small>Commission</small></div>
-            <div><strong>0.00</strong><br><small>Team Recharge</small></div>
+            <div><strong id="total-commission">₹ 0.00</strong><br><small>Commission</small></div>
+            <div><strong id="team-recharge">₹ 0.00</strong><br><small>Team Recharge</small></div>
         </div>
-        <div>👤 0</div>
+        <div id="total-members">👤 0</div>
     </div>
 
     <div class="invite-box">
-        <span id="invite-link">https://randi-pay.onrender.com/regist?code=0dashowpay8j</span>
+        <span id="invite-link" style="word-break: break-all; font-size: 14px; color: #007bff;">Loading link...</span>
         <button class="copy-btn" onclick="copyInvite()">©️</button>
     </div>
 
     <div class="header"><h4>Team Detail</h4></div>
+    
+    <div id="team-list-container">
+        <p style="text-align: center; color: #777;">Loading team details...</p>
+    </div>
     
     <div class="navbar">
         <a href="dashboard.html" class="nav-item">🏠<br>Home</a>
@@ -51,9 +58,73 @@
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. लोकल स्टोरेज से इस यूज़र का अपना रेफरल कोड निकालो
+            const myRefCode = localStorage.getItem('myReferralCode');
+            const baseUrl = "https://randi-pay.onrender.com/regist";
+
+            if (myRefCode && myRefCode !== "NONE") {
+                // यूज़र का एकदम पर्सनल और परमानेंट इनवाइट लिंक सेट कर दिया भाई
+                document.getElementById('invite-link').innerText = `${baseUrl}?code=${myRefCode}`;
+                
+                // 2. डेटाबेस से इस यूज़र की टीम का लाइव डेटा खींचो
+                fetchTeamData(myRefCode);
+            } else {
+                document.getElementById('invite-link').innerText = "Not Logged In / No Code Found";
+                document.getElementById('team-list-container').innerHTML = '<p style="text-align: center; color: red;">Please log in first.</p>';
+            }
+        });
+
+        // डेटाबेस से टीम का माल खींचने वाला फंक्शन
+        async function fetchTeamData(refCode) {
+            try {
+                // बैकएंड पर रिक्वेस्ट भेज रहे हैं इस यूज़र के रेफरल कोड के साथ
+                const response = await fetch(`/api/team-details?refCode=${refCode}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    // कार्ड्स में टोटल वैल्यूज सेट करो
+                    document.getElementById('total-commission').innerText = `₹ ${data.totalCommission.toFixed(2)}`;
+                    document.getElementById('team-recharge').innerText = `₹ ${data.teamRecharge.toFixed(2)}`;
+                    document.getElementById('total-members').innerText = `👤 ${data.teamMembers.length}`;
+
+                    // नीचे लिस्ट खाली करो और डेटाबेस का लाइव माल डालो
+                    const listContainer = document.getElementById('team-list-container');
+                    listContainer.innerHTML = "";
+
+                    if (data.teamMembers.length === 0) {
+                        listContainer.innerHTML = '<p style="text-align: center; color: #777; margin-top: 20px;">No members in your team yet.</p>';
+                        return;
+                    }
+
+                    // हर एक टीम मेंबर को लूप चलाकर स्क्रीन पर जोड़ो
+                    data.teamMembers.forEach(member => {
+                        const memberHtml = `
+                            <div class="team-member">
+                                <div>
+                                    <span class="member-id">ID: ${member.userID}</span><br>
+                                    <small style="color:#777;">Recharge: ₹ ${member.rechargeAmount.toFixed(2)}</small>
+                                </div>
+                                <div class="member-comm">+ ₹ ${member.commissionEarned.toFixed(2)}</div>
+                            </div>
+                        `;
+                        listContainer.insertAdjacentHTML('beforeend', memberHtml);
+                    });
+
+                } else {
+                    document.getElementById('team-list-container').innerHTML = '<p style="text-align: center; color: red;">Failed to load team details.</p>';
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('team-list-container').innerHTML = '<p style="text-align: center; color: red;">Server connection error.</p>';
+            }
+        }
+
         function copyInvite() {
             const link = document.getElementById('invite-link').innerText;
-            navigator.clipboard.writeText(link).then(() => alert("Link Copied!"));
+            if(link !== "Loading link..." && link !== "Not Logged In / No Code Found") {
+                navigator.clipboard.writeText(link).then(() => alert("Your Permanent Invite Link Copied!"));
+            }
         }
     </script>
 </body>
