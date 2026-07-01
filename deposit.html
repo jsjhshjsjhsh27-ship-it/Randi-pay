@@ -27,18 +27,20 @@
     <h3>Task Center</h3>
     <div id="task-list"></div>
 
-    <!-- Payment Details Form -->
+    <!-- Payment Details Form (यूज़र को यहीं पर ऑर्डर डिटेल्स और फॉर्म दिखेगा, जैसा पहले था) -->
     <div id="payment-form">
+        <h4 style="margin-top: 0; color: #00d4ff;">Order Amount: <span id="display-amount">0</span> INR</h4>
         <div class="bank-info">
             <div class="inline-detail">Acc: <span id="acc">20401036509</span> <button class="copy-btn" onclick="copyText('acc')">Copy</button></div>
             <div class="inline-detail">IFSC: <span id="ifsc">FINO0009001</span> <button class="copy-btn" onclick="copyText('ifsc')">Copy</button></div>
             <div class="inline-detail">Name: <span id="name">NOOR BHANU BEGUM</span> <button class="copy-btn" onclick="copyText('name')">Copy</button></div>
             <div class="inline-detail">Bank: <span id="bank">FINO PAYMENT BANK</span> <button class="copy-btn" onclick="copyText('bank')">Copy</button></div>
         </div>
-        <input type="text" placeholder="Enter UTR Number" style="width:100%; padding:10px; box-sizing:border-box;">
-        <input type="file" style="margin: 10px 0; color: #fff;">
-        <button onclick="alert('Submitted')" style="width:100%; padding:10px; background:#00d4ff; border:none; cursor:pointer;">Submit</button>
-        <button onclick="document.getElementById('payment-form').style.display='none'; document.getElementById('task-list').style.display='block';" style="width:100%; padding:10px; margin-top:5px; background:#444; color:#fff; border:none;">Back</button>
+        <input type="text" id="utr-number" placeholder="Enter UTR Number" style="width:100%; padding:10px; box-sizing:border-box; background: #0e1215; color: #fff; border: 1px solid #444; border-radius: 5px;">
+        <input type="file" id="file-proof" style="margin: 10px 0; color: #fff;">
+        <button onclick="submitOrder()" style="width:100%; padding:10px; background:#00d4ff; border:none; cursor:pointer; font-weight: bold;">Submit</button>
+        <button onclick="cancelOrder()" style="width:100%; padding:10px; background:#ff5252; border:none; cursor:pointer; font-weight: bold;">Cancel</button>
+        <button onclick="closeForm()" style="width:100%; padding:10px; margin-top:5px; background:#444; color:#fff; border:none; cursor: pointer;">Back</button>
     </div>
 
     <!-- Navigation Bar -->
@@ -51,16 +53,75 @@
     </div>
 
     <script>
+        let currentSelectedAmount = 0;
+
         function copyText(id) {
             const text = document.getElementById(id).innerText;
             navigator.clipboard.writeText(text).then(() => alert("Copied!"));
         }
 
+        // 'Buy' बटन क्लिक करने पर पहले जैसा ही काम होगा (फॉर्म खुलेगा) + हिस्ट्री के लिए डेटा बैकग्राउंड में सेट होगा
+        function handleBuyClick(amount) {
+            currentSelectedAmount = amount;
+            
+            // स्क्रीन पर अमाउंट दिखाएँगे
+            document.getElementById('display-amount').innerText = amount;
+            
+            // 1. पुराने तरीके से फॉर्म को स्क्रीन पर शो करेंगे और लिस्ट छुपाएंगे
+            document.getElementById('task-list').style.display = 'none';
+            document.getElementById('payment-form').style.display = 'block';
+
+            // 2. बैकग्राउंड में हिस्ट्री (recharge_history.html) के लिए 'In Payment' डेटा सेट कर देते हैं
+            const activeOrders = JSON.parse(localStorage.getItem('my_recharge_orders') || '[]');
+            
+            // नया इन-पेमेंट ऑर्डर ऑब्जेक्ट
+            const newOrder = {
+                id: "TXN" + Math.floor(Math.random() * 900000 + 100000),
+                amount: amount,
+                status: "In Payment", // ये आपकी हिस्ट्री में 'In Payment' सेक्शन में दिखेगा
+                date: new Date().toLocaleString()
+            };
+            
+            activeOrders.push(newOrder);
+            localStorage.setItem('my_recharge_orders', JSON.stringify(activeOrders));
+            localStorage.setItem('current_active_txn_id', newOrder.id); // करंट ट्रांजैक्शन ट्रैक करने के लिए
+        }
+
+        // जब यूज़र डिटेल्स भरकर Submit बटन दबाएगा
+        function submitOrder() {
+            const utr = document.getElementById('utr-number').value.trim();
+            if(!utr) {
+                alert("Please enter UTR number!");
+                return;
+            }
+
+            // हिस्ट्री में ऑर्डर का स्टेटस अपडेट कर देंगे
+            const activeOrders = JSON.parse(localStorage.getItem('my_recharge_orders') || '[]');
+            const currentTxnId = localStorage.getItem('current_active_txn_id');
+            
+            const orderIndex = activeOrders.findIndex(o => o.id === currentTxnId);
+            if(orderIndex !== -1) {
+                activeOrders[orderIndex].status = "Pending"; // सबमिट होने के बाद पेंडिंग/रिव्यू में चला गया
+                activeOrders[orderIndex].utr = utr;
+            }
+            localStorage.setItem('my_recharge_orders', JSON.stringify(activeOrders));
+
+            alert('Submitted Successfully!');
+            closeForm();
+        }
+
+        function closeForm() {
+            document.getElementById('payment-form').style.display = 'none';
+            document.getElementById('task-list').style.display = 'block';
+            document.getElementById('utr-number').value = "";
+        }
+
+        // लूप बिल्कुल पहले जैसा ही है
         const list = document.getElementById('task-list');
         for(let i=200; i<=50000; i+=200) {
             list.innerHTML += `<div class="card">
                 <div><strong>${i} INR</strong><br><small>4% | +${(i*1.04).toFixed(0)}</small></div>
-                <button class="buy-btn" onclick="document.getElementById('payment-form').style.display='block'; document.getElementById('task-list').style.display='none';">Buy</button>
+                <button class="buy-btn" onclick="handleBuyClick(${i})">Buy</button>
             </div>`;
         }
     </script>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control Panel</title>
+    <style>
+        body { background: #0e1215; color: #fff; font-family: sans-serif; margin: 0; padding: 20px; }
+        .header { border-bottom: 2px solid #00d4ff; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .stats-container { display: flex; gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #1c2227; padding: 15px; border-radius: 8px; border: 1px solid #333; flex: 1; text-align: center; }
+        .stat-card h3 { margin: 0; color: #00d4ff; font-size: 24px; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .tab-btn { background: #222; color: #aaa; border: 1px solid #444; padding: 8px 16px; border-radius: 5px; cursor: pointer; }
+        .tab-btn.active { background: #00d4ff; color: #000; font-weight: bold; border-color: #00d4ff; }
+        
+        .panel-section { display: none; }
+        .panel-section.active { display: block; }
+
+        table { width: 100%; border-collapse: collapse; background: #1c2227; border-radius: 8px; overflow: hidden; border: 1px solid #333; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: #252d33; color: #00d4ff; }
+        tr:hover { background: #222a30; }
+
+        .btn { padding: 6px 12px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; }
+        .btn-approve { background: #00bfa5; color: #fff; margin-right: 5px; }
+        .btn-reject { background: #ff5252; color: #fff; }
+        
+        .search-box { width: 100%; padding: 10px; background: #1c2227; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; margin-bottom: 15px; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-pending { background: #fff3e0; color: #ff9100; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>Randipay Admin Dashboard</h2>
+        <button class="btn" style="background: #444; color: #fff;" onclick="loadDashboardData()">🔄 Refresh Data</button>
+    </div>
+
+    <!-- स्टेट्स कार्ड्स -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <p style="margin: 0 0 5px 0; color: #aaa;">Total Members</p>
+            <h3 id="stat-total-users">0</h3>
+        </div>
+        <div class="stat-card">
+            <p style="margin: 0 0 5px 0; color: #aaa;">Pending Requests</p>
+            <h3 id="stat-pending-pay" style="color: #ff9100;">0</h3>
+        </div>
+    </div>
+
+    <!-- टैब्स -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('deposits', event)">📥 Deposit Requests</button>
+        <button class="tab-btn" onclick="switchTab('users', event)">👥 Manage Users</button>
+    </div>
+
+    <!-- सर्च बार -->
+    <input type="text" id="search-input" class="search-box" placeholder="Search by User ID, Mobile, or UTR..." oninput="loadDashboardData()">
+
+    <!-- डिपॉजिट रिक्वेस्ट सेक्शन -->
+    <div id="deposits-section" class="panel-section active">
+        <h3>Pending P2P Orders</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Req ID</th>
+                    <th>Buyer ID</th>
+                    <th>Seller ID</th>
+                    <th>Amount</th>
+                    <th>UTR Number</th>
+                    <th>Proof</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="deposit-table-body">
+                <tr><td colspan="7" style="text-align:center; color:#aaa;">Loading requests...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- यूजर मैनेजमेंट सेक्शन -->
+    <div id="users-section" class="panel-section">
+        <h3>All Registered Users</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Mobile</th>
+                    <th>Password</th>
+                    <th>Wallet Balance</th>
+                    <th>Bank Status</th>
+                    <th>ID Status</th>
+                </tr>
+            </thead>
+            <tbody id="user-table-body">
+                <tr><td colspan="6" style="text-align:center; color:#aaa;">Loading users...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // टैब स्विच करने का फंक्शन
+        function switchTab(tabName, event) {
+            document.querySelectorAll('.panel-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName + '-section').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // सर्वर से लाइव डेटा लोड करना
+        async function loadDashboardData() {
+            const searchQuery = document.getElementById('search-input').value;
+            try {
+                const response = await fetch(`/api/admin/dashboard-data?search=${searchQuery}`);
+                const data = await response.json();
+
+                if (!data.success) return alert("डेटा लोड करने में एरर!");
+
+                // स्टेट्स अपडेट करना
+                document.getElementById('stat-total-users').innerText = data.stats?.totalUsers || data.users.length;
+                document.getElementById('stat-pending-pay').innerText = data.stats?.pendingPayments || data.payments.filter(p => p.status === "PENDING").length;
+
+                // 1. डिपॉजिट टेबल रेंडर करना
+                const depositBody = document.getElementById('deposit-table-body');
+                depositBody.innerHTML = "";
+                
+                const pendingPayments = data.payments.filter(p => p.status === "PENDING");
+                
+                if(pendingPayments.length === 0) {
+                    depositBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#aaa;">No pending deposit requests!</td></tr>`;
+                } else {
+                    pendingPayments.forEach(pay => {
+                        depositBody.innerHTML += `
+                            <tr>
+                                <td><b>${pay.requestID}</b></td>
+                                <td>${pay.userID}</td>
+                                <td style="color: #ff9100;">${pay.sellerID || 'N/A'}</td>
+                                <td style="color: #00bfa5; font-weight:bold;">₹${pay.amount}</td>
+                                <td><code>${pay.utr}</code></td>
+                                <td><a href="${pay.proofImage}" target="_blank" style="color:#00d4ff;">View Proof</a></td>
+                                <td>
+                                    <button class="btn btn-approve" onclick="processPayment('${pay.requestID}', 'APPROVED')">Approve</button>
+                                    <button class="btn btn-reject" onclick="processPayment('${pay.requestID}', 'CANCELLED')">Reject</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                // 2. यूजर टेबल रेंडर करना
+                const userBody = document.getElementById('user-table-body');
+                userBody.innerHTML = "";
+                
+                data.users.forEach(user => {
+                    userBody.innerHTML += `
+                        <tr>
+                            <td><b>${user.userID}</b></td>
+                            <td>${user.mobile}</td>
+                            <td><code>${user.pass}</code></td>
+                            <td style="color: #00d4ff; font-weight:bold;">₹${user.walletBalance || 0}</td>
+                            <td>
+                                <span class="badge" style="background: ${user.bankDetails?.bankStatus === 'ON' ? '#00bfa5' : '#ff5252'}; color: #fff;">
+                                    ${user.bankDetails?.bankStatus || 'ON'}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge" style="background: ${user.status === 'ON' ? '#00bfa5' : '#ff5252'}; color: #fff;">
+                                    ${user.status}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+            } catch (err) {
+                console.error("Dashboard Error:", err);
+            }
+        }
+
+        // पेमेंट एक्सेप्ट या रिजेक्ट करने का एक्शन (यह सीधा सेलर का बैलेंस काटेगा)
+        async function processPayment(requestID, action) {
+            if(!confirm(`क्या आप इस रिक्वेस्ट को ${action} करना चाहते हैं?`)) return;
+
+            try {
+                const response = await fetch('/api/admin/process-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ requestID, action })
+                });
+                const data = await response.json();
+
+                if(data.success) {
+                    alert(`ऑर्डर सफलतापूर्वक ${action} हो गया!`);
+                    loadDashboardData(); // टेबल रीलोड करें
+                } else {
+                    alert(data.message || "प्रोसेस करने में फेल!");
+                }
+            } catch (err) {
+                alert("सर्वर एरर!");
+            }
+        }
+
+        // पेज लोड होते ही डेटा सिंक करें
+        window.onload = loadDashboardData;
+    </script>
+</body>
+</html>
