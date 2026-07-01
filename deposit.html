@@ -2,10 +2,22 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Task Center</title>
     <style>
-        body { background: #0e1215; color: #fff; font-family: sans-serif; margin: 0; padding: 10px; padding-bottom: 70px; }
+        /* मोबाइल पर स्क्रीन फिक्स रखने के लिए CSS */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            background: #0e1215; 
+            color: #fff; 
+            font-family: sans-serif; 
+            padding-bottom: 70px;
+            touch-action: manipulation;
+        }
         
         /* INR Task Design */
         .card { background: #1c2227; padding: 12px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
@@ -18,16 +30,18 @@
         .copy-btn { cursor: pointer; background: #555; border: none; color: #fff; padding: 2px 8px; border-radius: 4px; }
 
         /* Navigation Bar */
-        .navbar { position: fixed; bottom: 0; left: 0; width: 100%; background: #1c2227; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; }
+        .navbar { position: fixed; bottom: 0; left: 0; width: 100%; background: #1c2227; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; z-index: 1000; }
         .nav-item { color: #fff; text-decoration: none; text-align: center; font-size: 12px; }
     </style>
 </head>
 <body>
+    <script>
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+    </script>
 
     <h3>Task Center</h3>
     <div id="task-list"></div>
 
-    <!-- Payment Details Form (यूज़र को यहीं पर ऑर्डर डिटेल्स और फॉर्म दिखेगा, जैसा पहले था) -->
     <div id="payment-form">
         <h4 style="margin-top: 0; color: #00d4ff;">Order Amount: <span id="display-amount">0</span> INR</h4>
         <div class="bank-info">
@@ -38,12 +52,11 @@
         </div>
         <input type="text" id="utr-number" placeholder="Enter UTR Number" style="width:100%; padding:10px; box-sizing:border-box; background: #0e1215; color: #fff; border: 1px solid #444; border-radius: 5px;">
         <input type="file" id="file-proof" style="margin: 10px 0; color: #fff;">
-        <button onclick="submitOrder()" style="width:100%; padding:10px; background:#00d4ff; border:none; cursor:pointer; font-weight: bold;">Submit</button>
-        <button onclick="cancelOrder()" style="width:100%; padding:10px; background:#ff5252; border:none; cursor:pointer; font-weight: bold;">Cancel</button>
-        <button onclick="closeForm()" style="width:100%; padding:10px; margin-top:5px; background:#444; color:#fff; border:none; cursor: pointer;">Back</button>
+        <button onclick="submitOrder()" style="width:100%; padding:10px; background:#00d4ff; border:none; cursor:pointer; font-weight: bold; border-radius: 5px;">Submit</button>
+        <button onclick="cancelOrder()" style="width:100%; padding:10px; background:#ff5252; border:none; cursor:pointer; font-weight: bold; margin-top: 5px; border-radius: 5px;">Cancel</button>
+        <button onclick="closeForm()" style="width:100%; padding:10px; margin-top:5px; background:#444; color:#fff; border:none; cursor: pointer; border-radius: 5px;">Back</button>
     </div>
 
-    <!-- Navigation Bar -->
     <div class="navbar">
         <a href="dashboard.html" class="nav-item">🏠<br>Home</a>
         <a href="deposit.html" class="nav-item">💰<br>Deposit</a>
@@ -60,53 +73,48 @@
             navigator.clipboard.writeText(text).then(() => alert("Copied!"));
         }
 
-        // 'Buy' बटन क्लिक करने पर पहले जैसा ही काम होगा (फॉर्म खुलेगा) + हिस्ट्री के लिए डेटा बैकग्राउंड में सेट होगा
         function handleBuyClick(amount) {
             currentSelectedAmount = amount;
-            
-            // स्क्रीन पर अमाउंट दिखाएँगे
             document.getElementById('display-amount').innerText = amount;
-            
-            // 1. पुराने तरीके से फॉर्म को स्क्रीन पर शो करेंगे और लिस्ट छुपाएंगे
             document.getElementById('task-list').style.display = 'none';
             document.getElementById('payment-form').style.display = 'block';
 
-            // 2. बैकग्राउंड में हिस्ट्री (recharge_history.html) के लिए 'In Payment' डेटा सेट कर देते हैं
             const activeOrders = JSON.parse(localStorage.getItem('my_recharge_orders') || '[]');
-            
-            // नया इन-पेमेंट ऑर्डर ऑब्जेक्ट
             const newOrder = {
                 id: "TXN" + Math.floor(Math.random() * 900000 + 100000),
                 amount: amount,
-                status: "In Payment", // ये आपकी हिस्ट्री में 'In Payment' सेक्शन में दिखेगा
-                date: new Date().toLocaleString()
+                status: "In Payment",
+                date: new Date().toLocaleString(),
+                bankDetails: {
+                    accountNo: document.getElementById('acc').innerText,
+                    ifsc: document.getElementById('ifsc').innerText,
+                    holderName: document.getElementById('name').innerText
+                }
             };
             
             activeOrders.push(newOrder);
             localStorage.setItem('my_recharge_orders', JSON.stringify(activeOrders));
-            localStorage.setItem('current_active_txn_id', newOrder.id); // करंट ट्रांजैक्शन ट्रैक करने के लिए
+            localStorage.setItem('current_active_txn_id', newOrder.id);
         }
 
-        // जब यूज़र डिटेल्स भरकर Submit बटन दबाएगा
         function submitOrder() {
             const utr = document.getElementById('utr-number').value.trim();
-            if(!utr) {
-                alert("Please enter UTR number!");
-                return;
-            }
+            if(!utr) { alert("Please enter UTR number!"); return; }
 
-            // हिस्ट्री में ऑर्डर का स्टेटस अपडेट कर देंगे
             const activeOrders = JSON.parse(localStorage.getItem('my_recharge_orders') || '[]');
             const currentTxnId = localStorage.getItem('current_active_txn_id');
             
             const orderIndex = activeOrders.findIndex(o => o.id === currentTxnId);
             if(orderIndex !== -1) {
-                activeOrders[orderIndex].status = "Pending"; // सबमिट होने के बाद पेंडिंग/रिव्यू में चला गया
+                activeOrders[orderIndex].status = "Pending";
                 activeOrders[orderIndex].utr = utr;
             }
             localStorage.setItem('my_recharge_orders', JSON.stringify(activeOrders));
-
             alert('Submitted Successfully!');
+            closeForm();
+        }
+
+        function cancelOrder() {
             closeForm();
         }
 
@@ -116,7 +124,6 @@
             document.getElementById('utr-number').value = "";
         }
 
-        // लूप बिल्कुल पहले जैसा ही है
         const list = document.getElementById('task-list');
         for(let i=200; i<=50000; i+=200) {
             list.innerHTML += `<div class="card">

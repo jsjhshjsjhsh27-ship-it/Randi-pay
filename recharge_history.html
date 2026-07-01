@@ -2,18 +2,29 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Recharge History</title>
     <style>
-        body { background: #f9f9f9; font-family: sans-serif; margin: 0; padding-bottom: 20px; }
+        /* मोबाइल पर स्क्रीन एकदम फिक्स रखने के लिए */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            background: #f9f9f9;
+            font-family: sans-serif;
+            padding-bottom: 20px;
+            touch-action: manipulation;
+        }
         .header { background: #fff; padding: 15px; font-weight: bold; border-bottom: 1px solid #eee; cursor: pointer; }
         .filter-bar { display: flex; justify-content: space-around; background: #fff; padding: 15px 0; font-size: 13px; color: #666; border-bottom: 1px solid #eee; }
         .filter-bar span { cursor: pointer; padding: 5px; }
         .filter-bar span.active { color: #000; border-bottom: 2px solid #000; }
         .notice { background: #ece1ff; margin: 10px; padding: 10px; border-radius: 8px; font-size: 13px; text-align: center; }
-        .history-card { background: #fff; margin: 10px; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .history-card { background: #fff; margin: 10px; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .status-pill { padding: 4px 8px; border-radius: 5px; font-size: 12px; font-weight: bold; }
         
-        /* स्टेटस के कलर्स (In Payment और Pending के लिए नए कलर्स जोड़ दिए हैं बिना पुरानी डिज़ाइन छेड़े) */
         .success { color: #00bfa5; background: #e0f2f1; }
         .cancel { color: #ff5252; background: #ffebee; }
         .timeout { color: #ff9100; background: #fff3e0; }
@@ -23,7 +34,6 @@
 </head>
 <body>
 
-    <!-- बैक जाने के लिए होम या डिपॉजिट पर जाने का रास्ता -->
     <div class="header" onclick="window.location.href='deposit.html'">&lt; Recharge History</div>
     
     <div class="filter-bar" id="filterBar">
@@ -36,12 +46,12 @@
 
     <div class="notice">🟡 Complete a task to earn Commission and Bonus</div>
 
-    <div id="historyList">
-        <!-- डेटा यहाँ दिखाई देगा -->
-    </div>
+    <div id="historyList"></div>
 
     <script>
-        // पुराने 3 स्टेटिक ऑर्डर्स वैसे ही रहेंगे
+        // ज़ूमिंग रोकने के लिए एक्स्ट्रा प्रोटेक्शन
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+        
         const staticTransactions = [
             { amount: "5000 RS", status: "Cancel", income: "150", quota: "+5150", order: "BFbw0adp" },
             { amount: "3300 RS", status: "Success", income: "99", quota: "+3399", order: "BFbw0msc" },
@@ -49,7 +59,6 @@
         ];
 
         function filterData(status, event) {
-            // एक्टिव क्लास अपडेट करना (अगर इवेंट पास हुआ है)
             if (event) {
                 document.querySelectorAll('.filter-bar span').forEach(el => el.classList.remove('active'));
                 event.target.classList.add('active');
@@ -58,31 +67,24 @@
             const list = document.getElementById('historyList');
             list.innerHTML = "";
 
-            // localStorage से deposit.html वाले लाइव ऑर्डर्स उठाना
             const liveOrders = JSON.parse(localStorage.getItem('my_recharge_orders') || '[]');
             
-            // लाइव डेटा को तुम्हारी पुरानी डिज़ाइन के फ़ॉर्मेट में ढालना
             const formattedLiveOrders = liveOrders.map(order => {
-                const inc = (order.amount * 0.03).toFixed(2); // मान लेते हैं 3% इनकम है या जो आप रखें
+                const inc = (order.amount * 0.03).toFixed(2);
                 const qta = (order.amount * 1.03).toFixed(2);
                 return {
                     amount: order.amount + " RS",
-                    status: order.status, // "In Payment" या "Pending"
+                    status: order.status,
                     income: inc,
                     quota: "+" + qta,
                     order: order.id
                 };
             });
 
-            // दोनों डेटा को आपस में मिला देना (लाइव वाले सबसे ऊपर दिखेंगे)
             const allTransactions = [...formattedLiveOrders, ...staticTransactions];
-
-            // फ़िल्टर लॉजिक
             const filtered = (status === 'All') ? allTransactions : allTransactions.filter(t => t.status === status);
 
-            // स्क्रीन पर डेटा रेंडर करना (आपकी सेम टू सेम क्लास और स्टाइल के साथ)
             filtered.forEach(t => {
-                // सीएसएस क्लास के लिए स्टेटस का नाम ठीक करना (In Payment को 'in-payment' बनाना)
                 const classStatus = t.status.toLowerCase().replace(" ", "-");
                 
                 list.innerHTML += `
@@ -97,7 +99,6 @@
             });
         }
         
-        // पहली बार पेज खुलने पर सीधा 'All' डेटा लोड करना
         filterData('All');
     </script>
 </body>

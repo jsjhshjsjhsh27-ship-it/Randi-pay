@@ -2,9 +2,20 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Profile</title>
     <style>
-        body { background: #7aa6e7; font-family: sans-serif; margin: 0; padding-bottom: 70px; }
+        /* मोबाइल पर स्क्रीन फिक्स रखने के लिए CSS */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-family: sans-serif;
+            background: #7aa6e7;
+            padding-bottom: 70px;
+        }
         .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: #fff; }
         .logo { width: 40px; height: 40px; border-radius: 50%; background: #ddd; }
         
@@ -17,7 +28,7 @@
         .copy-btn { cursor: pointer; background: #eee; border: none; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 5px; }
 
         /* Navigation Bar */
-        .navbar { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; }
+        .navbar { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; z-index: 1000; }
         .nav-item { text-align: center; font-size: 12px; color: #555; text-decoration: none; }
     </style>
 </head>
@@ -28,7 +39,6 @@
         <img src="14322.jpg" alt="Logo" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
     </div>
     <div>
-        <!-- यहाँ अब 1001 नहीं, बल्कि असली आईडी दिखेगी -->
         ID: <span id="user-id">Loading...</span>
         <button class="copy-btn" onclick="copyId()">Copy</button>
     </div>
@@ -39,7 +49,6 @@
         <h2>₹ 0.00</h2>
     </div>
 
-    <!-- रेफरल कोड दिखाने के लिए एक नया छोटा सा कार्ड जोड़ दिया भाई -->
     <div class="quota-card" style="margin-top: 5px;">
         <div><strong>My Referral Code</strong><br><small id="my-ref-code">Loading...</small></div>
         <button class="copy-btn" onclick="copyRef()">Copy Code</button>
@@ -67,7 +76,6 @@
     </div>
 
     <script>
-        // 1. पेज लोड होते ही लोकल स्टोरेज से आईडी और रेफरल कोड उठाओ
         document.addEventListener("DOMContentLoaded", () => {
             const savedUserID = localStorage.getItem('userID');
             const savedRefCode = localStorage.getItem('myReferralCode');
@@ -85,7 +93,6 @@
             }
         });
 
-        // आईडी कॉपी करने का फंक्शन
         function copyId() {
             const id = document.getElementById('user-id').innerText;
             if(id !== "Loading..." && id !== "Not Logged In") {
@@ -93,7 +100,6 @@
             }
         }
 
-        // रेफरल कोड कॉपी करने का फंक्शन
         function copyRef() {
             const ref = document.getElementById('my-ref-code').innerText;
             if(ref !== "Loading..." && ref !== "NONE") {
@@ -101,11 +107,10 @@
             }
         }
 
-        // लॉगआउट करने पर डेटा साफ़ करो
         function logout() {
             localStorage.clear();
             alert('Signed Out!');
-            window.location.href = 'register.html'; // या जो भी तुम्हारा लॉगिन पेज हो
+            window.location.href = 'register.html';
         }
     </script>
 </body>

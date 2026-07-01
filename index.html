@@ -2,15 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration - Randi Pay</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Randi Pay</title>
     <style>
-        /* तेरा ओरिजिनल डिजाइन जैसा का तैसा है भाई */
-        body { font-family: Arial, sans-serif; display: flex; justify-content: center; padding-top: 50px; background-color: #f4f4f4; }
-        .form-container { width: 320px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
+        /* मोबाइल स्क्रीन पर फिक्स करने के लिए CSS */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden; /* साइड में स्क्रीन न हिले */
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+        }
+        .form-container { 
+            width: 100%; 
+            max-width: 320px; /* मोबाइल साइज के लिए बेस्ट */
+            padding: 20px; 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); 
+            text-align: center;
+            box-sizing: border-box; /* ताकि पैडिंग से चौड़ाई न बढ़े */
+        }
         .logo { width: 100px; margin-bottom: 20px; }
-        input { width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
-        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        input { width: 100%; margin: 10px 0; padding: 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
+        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; }
         .login-link { margin-top: 15px; display: block; color: #007bff; text-decoration: none; cursor: pointer; }
     </style>
 </head>
@@ -49,7 +68,6 @@
         if (mobile.length !== 10) { alert("Please enter a valid 10-digit mobile number"); return; }
         if (pass !== confirmPass) { alert("Passwords do not match"); return; }
 
-        // सर्वर को डेटा भेजें
         try {
             const response = await fetch('/api/register', {
                 method: 'POST',
@@ -60,13 +78,9 @@
             const data = await response.json();
 
             if (data.success) {
-                // 🔥 एमजे का फिक्स: डेटा को ब्राउज़र की मेमोरी (localStorage) में लॉक कर दिया
                 localStorage.setItem('userID', data.userID);
                 localStorage.setItem('myReferralCode', data.myReferralCode);
-
                 alert("Registration Successful!\nYour New Unique ID: " + data.userID);
-                
-                // सीधे प्रोफाइल पेज पर भेजो ताकि आईडी लाइव दिखे
                 window.location.href = "profile.html";
             } else {
                 alert("Error: " + (data.message || "Registration failed."));

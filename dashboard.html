@@ -2,9 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Randi Pay</title>
     <style>
-        body { margin: 0; background-color: #0c1117; color: #ffffff; font-family: sans-serif; }
+        /* मोबाइल पर स्क्रीन फिक्स रखने के लिए CSS */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            background-color: #0c1117; 
+            color: #ffffff; 
+            font-family: sans-serif; 
+            padding-bottom: 70px;
+            touch-action: manipulation;
+        }
         
         /* Header */
         .header { display: flex; align-items: center; padding: 15px; font-size: 20px; font-weight: bold; }
@@ -21,18 +34,22 @@
         .value { font-size: 16px; font-weight: bold; margin-top: 5px; }
         
         /* Top-up Button */
-        .top-up { background: #6eb9ff; margin: 15px; padding: 15px; border: 1px solid #000000; text-align: center; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .top-up { background: #6eb9ff; margin: 15px; padding: 15px; border: 1px solid #000000; text-align: center; border-radius: 8px; font-weight: bold; cursor: pointer; color: black; }
         
         /* Tutorials */
         .tutorials { padding: 0 15px; }
-        .video-container { display: flex; gap: 10px; }
-        .video-box { width: 100%; height: 100px; background: #161b22; border-radius: 8px; border: 1px solid #30363d; }
+        .video-container { display: flex; gap: 10px; overflow-x: auto; }
+        .video-box { min-width: 100px; height: 100px; background: #161b22; border-radius: 8px; border: 1px solid #30363d; }
         
         /* Bottom Navbar */
-        .navbar { position: fixed; bottom: 0; width: 100%; background: #0c1117; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #30363d; font-size: 10px; color: #8b949e; }
+        .navbar { position: fixed; bottom: 0; width: 100%; background: #0c1117; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #30363d; font-size: 10px; color: #8b949e; z-index: 1000; }
+        .nav-item { text-align: center; color: #8b949e; text-decoration: none; }
     </style>
 </head>
 <body>
+    <script>
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+    </script>
 
 <div class="header">
     <img src="14322.jpg" alt="Logo">
@@ -50,7 +67,7 @@
     <div class="card"><div class="label">TOTAL EARNINGS</div><div class="value">12,450.00</div></div>
 </div>
 
-<div class="top-up">TOP-UP</div>
+<div class="top-up" onclick="window.location.href='deposit.html'">TOP-UP</div>
 <div class="tutorials">
     <p>Tutorials</p>
     <div class="video-container">
@@ -62,7 +79,7 @@
 </div>
 
 <div class="navbar">
-    <a href="dashboard.html" class="nav-item">🏠<br>Home</a>
+    <a href="dashboard.html" class="nav-item" style="color: white;">🏠<br>Home</a>
     <a href="deposit.html" class="nav-item">💰<br>Deposit</a>
     <a href="bank.html" class="nav-item">🏦<br>Bank</a>
     <a href="team.html" class="nav-item">👥<br>Team</a>
